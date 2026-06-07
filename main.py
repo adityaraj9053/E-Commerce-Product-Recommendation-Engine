@@ -24,4 +24,27 @@ engine = RecommendationEngine(
 
 )
 
-engine.show_user(100)
+recommendations = engine.recommend(
+
+    100,
+
+    k=5
+
+)
+
+print("=" * 50)
+print("Top Recommendations")
+print("=" * 50)
+
+for product, score in recommendations:
+
+    print(f"""
+Product ID : {product.product_id}
+Name       : {product.name}
+Category   : {product.category}
+Brand      : {product.brand}
+Price      : ₹{product.price}
+Rating     : {product.rating}
+Score      : {score:.2f}
+--------------------------------------------------
+""")

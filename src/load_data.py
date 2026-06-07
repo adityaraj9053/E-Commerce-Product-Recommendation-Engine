@@ -1,6 +1,6 @@
 import pandas as pd
 
-from product import Product
+from .product import Product
 
 
 def load_products():
@@ -12,26 +12,19 @@ def load_products():
     for _, row in df.iterrows():
 
         product = Product(
-
-            row.product_id,
-
-            row.name,
-
-            row.category,
-
-            row.brand,
-
-            row.price,
-
-            row.rating
-
-        )
+        product_id=int(row["product_id"]),
+        name=str(row["name"]),
+        category=str(row["category"]),
+        brand=str(row["brand"]),
+        price=int(row["price"]),
+        rating=float(row["rating"])
+    )
 
         products[row.product_id] = product
 
     return products
 
-from user import User
+from .user import User
 
 def load_users():
 
