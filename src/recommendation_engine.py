@@ -8,13 +8,16 @@ class RecommendationEngine:
 
         products,
 
-        users
+        users,
+        
+        co
 
     ):
 
         self.products = products
 
         self.users = users
+        self.co = co
 
 
     def show_user(self, user_id):
@@ -100,51 +103,61 @@ class RecommendationEngine:
 
         user = self.users[user_id]
 
+        scores = {}
+
         purchased = set(user.purchases)
 
-        heap = []
+        seeds = user.searches + user.cart
 
-        candidate_ids = self.get_candidates(user)
+        for seed in seeds:
 
-        for seed_id in candidate_ids:
+            neighbors = self.co.similar(seed)
 
-            if seed_id not in self.products:
-                continue
-
-            seed = self.products[seed_id]
-
-            for pid, product in self.products.items():
+            for pid, weight in neighbors.items():
 
                 if pid in purchased:
                     continue
 
-                score = self.similarity(
-                    seed,
-                    product
-                )
+                product = self.products[pid]
 
-                heapq.heappush(
+                score = weight
 
-                    heap,
+                score += product.rating * 5
 
-                    (-score, pid)
+                scores[pid] = scores.get(pid, 0) + score
 
-                )
+        heap = []
 
-        recommendations = []
+        for pid, score in scores.items():
 
-        visited = set()
+            heapq.heappush(
 
-        while heap and len(recommendations) < k:
+                heap,
+
+                (-score, pid)
+
+            )
+        # Print heap ranking
+        print("\nHeap Ranking")
+        print("=" * 50)
+        print(f"{'Rank':<6}{'Product ID':<12}{'Score'}")
+        print("=" * 50)
+
+        temp = heap.copy()
+
+        rank = 1
+
+        while temp:
+            score, pid = heapq.heappop(temp)
+            print(f"{rank:<6}{pid:<12}{-score:.2f}")
+            rank += 1
+        result = []
+
+        while heap and len(result) < k:
 
             score, pid = heapq.heappop(heap)
 
-            if pid in visited:
-                continue
-
-            visited.add(pid)
-
-            recommendations.append(
+            result.append(
 
                 (
 
@@ -156,4 +169,4 @@ class RecommendationEngine:
 
             )
 
-        return recommendations
+        return result
